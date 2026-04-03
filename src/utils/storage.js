@@ -118,7 +118,6 @@ const DEFAULT_MEDIA_CONFIG = {
       title: "Core Series - Round 2: Talladega",
       date: "March 23, 2026",
       views: "1.2K",
-      thumbnail: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2070&auto=format&fit=crop",
       series: "CORE",
       url: "https://www.youtube.com/watch?v=mZWzmziN0tM"
     },
@@ -127,18 +126,16 @@ const DEFAULT_MEDIA_CONFIG = {
       title: "Showdown Series - Spa-Francorchamps",
       date: "March 24, 2026",
       views: "850",
-      thumbnail: "https://images.unsplash.com/photo-1611821064430-0d402209d784?q=80&w=2070&auto=format&fit=crop",
       series: "SHOWDOWN",
-      url: "#"
+      url: "https://www.youtube.com/watch?v=mZWzmziN0tM"
     },
     {
       id: 3,
       title: "Core Series - Round 1: Daytona",
       date: "March 16, 2026",
       views: "2.1K",
-      thumbnail: "https://images.unsplash.com/photo-1541443131876-44b03de101c5?q=80&w=2068&auto=format&fit=crop",
       series: "CORE",
-      url: "#"
+      url: "https://www.youtube.com/watch?v=mZWzmziN0tM"
     }
   ]
 };
