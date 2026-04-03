@@ -276,12 +276,12 @@ export default function Series() {
               <div className="flex flex-col gap-3 lg:gap-4 mb-4 sm:mb-8 w-full max-w-3xl">
                 <div className="flex flex-wrap gap-x-12 gap-y-6">
                   {/* Top Row: Dominant Schedule Block */}
-                  <div className="flex flex-wrap items-end gap-x-8 gap-y-4 w-full sm:-mb-2">
-                    <div className="flex flex-col items-start gap-1 font-label uppercase tracking-widest leading-none">
+                  <div className="flex items-end gap-x-6 sm:gap-x-8 w-full sm:-mb-2">
+                    <div className="flex flex-col items-start gap-1 font-label uppercase tracking-widest leading-none shrink-0">
                       <span className="font-black text-[var(--series-accent)] text-[10px] sm:text-[11px] drop-shadow-[0_0_10px_var(--series-accent)] mb-1">Race Day</span>
-                      <span className="font-headline font-black italic text-white/95 text-2xl sm:text-3xl md:text-5xl drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] leading-none">{config.specs.day}</span>
+                      <span className="font-headline font-black italic text-white/95 text-2xl sm:text-3xl md:text-5xl drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] leading-none truncate max-w-[150px] sm:max-w-none">{config.specs.day}</span>
                     </div>
-                    <div className="flex flex-col items-start gap-1 font-label uppercase tracking-widest leading-none">
+                    <div className="flex flex-col items-start gap-1 font-label uppercase tracking-widest leading-none shrink-0">
                       <span className="font-black text-white/50 text-[10px] sm:text-[11px] drop-shadow-sm mb-1">Green Flag</span>
                       <span className="font-headline font-black italic text-[var(--series-accent)] text-2xl sm:text-3xl md:text-5xl drop-shadow-[0_0_20px_var(--series-accent)] leading-none">{config.specs.greenFlag}</span>
                     </div>
