@@ -860,7 +860,7 @@ export default function Series() {
             <div className="w-full max-w-6xl animate-fadeIn">
               <div className="mb-12 w-full flex flex-col items-center">
                 <h2 className="font-headline text-3xl md:text-5xl font-black uppercase italic text-on-surface text-center mb-4 tracking-tight">
-                  <span className="text-slate-300 mr-2">/</span>Official Series Info
+                  Official Series Info
                 </h2>
                 <p className="font-body text-secondary text-center max-w-2xl text-base md:text-lg mx-4">
                   Everything you need to know about competing in the {config.title}. 
@@ -945,7 +945,7 @@ export default function Series() {
                     <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:border-[var(--series-accent)]/30 transition-colors">
                       <p className="font-label text-[10px] uppercase tracking-widest font-black mb-3 flex items-center gap-1.5" style={{ color: config.color }}>
                         <span className="material-symbols-outlined text-[16px]">directions_car</span>
-                        Rotating Chassis Fleet
+                        Rotating Vehicles
                       </p>
                       <div className="flex flex-wrap gap-2.5">
                         <span className="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">Trucks</span>
