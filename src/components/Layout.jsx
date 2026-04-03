@@ -22,10 +22,7 @@ export default function Layout() {
             <span className="material-symbols-outlined text-[18px] group-hover:-rotate-12 transition-transform">forum</span>
             <span className="hidden md:inline">DISCORD</span>
           </a>
-          <Link to="/admin" className="material-symbols-outlined text-secondary cursor-pointer hover:text-primary transition-colors">settings</Link>
-          <button className="bg-primary text-white font-bold px-4 sm:px-6 py-1.5 h-8 md:h-auto flex items-center justify-center text-sm tracking-tighter rounded-lg shadow-md hover:-translate-y-0.5 hover:shadow-lg hover:bg-sky-500 transition-all active:scale-95">
-            LOGIN
-          </button>
+          <Link to="/admin" className="material-symbols-outlined text-secondary cursor-pointer hover:text-primary transition-colors pr-2">settings</Link>
         </div>
       </header>
 
