@@ -51,7 +51,7 @@ export default function Media() {
           {vods.map((vod) => (
             <a key={vod.id} href={vod.url} target="_blank" rel="noopener noreferrer" className="group flex flex-col cursor-pointer">
               <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-lg mb-4">
-                <img src={vod.thumbnail} alt={vod.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-500" />
+                <img src={vod.thumbnail || (vod.url ? `https://img.youtube.com/vi/${(vod.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/) || [])[1]}/maxresdefault.jpg` : '')} alt={vod.title} className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-500" />
                 <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-transparent transition-colors"></div>
                 
                 {/* Series Badge */}

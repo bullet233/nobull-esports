@@ -678,7 +678,7 @@ function MediaSection() {
             <Input label="Video Title" placeholder="Core Series Race" value={vodForm.title} onChange={v => setVodForm({...vodForm, title: v})} required />
             <Input label="Date" placeholder="March 24, 2026" value={vodForm.date} onChange={v => setVodForm({...vodForm, date: v})} required />
             <Input label="Views" placeholder="1.2K" value={vodForm.views} onChange={v => setVodForm({...vodForm, views: v})} />
-            <Input label="Thumbnail URL" placeholder="https://..." value={vodForm.thumbnail} onChange={v => setVodForm({...vodForm, thumbnail: v})} required />
+            <Input label="Thumbnail URL (Optional)" placeholder="Defaults to YouTube" value={vodForm.thumbnail} onChange={v => setVodForm({...vodForm, thumbnail: v})} />
             <Input label="YouTube Link" placeholder="https://www.youtube.com/watch?..." value={vodForm.url} onChange={v => setVodForm({...vodForm, url: v})} required />
             <div>
               <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-1.5">Series Badge</label>
@@ -698,7 +698,7 @@ function MediaSection() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {config.vods?.length > 0 ? config.vods.map((vod, idx) => (
           <div key={vod.id} className={`flex items-center gap-4 px-6 py-4 border-b border-slate-100 ${idx % 2 !== 0 ? 'bg-slate-50/40' : ''} hover:bg-slate-50 transition-colors`}>
-            <img src={vod.thumbnail} alt="" className="w-20 h-12 object-cover rounded shadow-sm bg-slate-200" />
+            <img src={vod.thumbnail || (vod.url ? `https://img.youtube.com/vi/${(vod.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/) || [])[1]}/maxresdefault.jpg` : '')} alt="" className="w-20 h-12 object-cover rounded shadow-sm bg-slate-200" />
             <div className="flex-1 min-w-0">
               <p className="font-headline font-bold text-sm uppercase italic text-slate-900 truncate">{vod.title}</p>
               <div className="flex gap-2">
