@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import CountdownClock from '../components/CountdownClock';
 import RegistrationModal from '../components/RegistrationModal';
+import * as storage from '../utils/storage';
 
 export const SERIES_CONFIG = {
   'core': {
@@ -227,6 +228,12 @@ export default function Series() {
   if (!config) {
     return <Navigate to="/" />;
   }
+
+  // Fetch dynamic schedule if available, otherwise fallback to hardcoded
+  const rawSchedules = storage.getSchedules() || {};
+  const seriesSchedule = rawSchedules[seriesId] && rawSchedules[seriesId].length > 0 
+    ? rawSchedules[seriesId] 
+    : (SCHEDULE_DB[seriesId] || []);
 
   // We use a CSS variable to dynamically theme the Tailwind classes for this specific series
   const themeStyle = { '--series-accent': config.color };
@@ -483,13 +490,13 @@ export default function Series() {
                 Official Season Schedule
               </h2>
               
-              {SCHEDULE_DB[seriesId]?.length > 0 ? (() => {
+              {seriesSchedule?.length > 0 ? (() => {
                 const now = new Date();
                 let foundNext = false;
                 
                 return (
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 pb-4 px-2">
-                  {SCHEDULE_DB[seriesId].map((event) => {
+                  {seriesSchedule.map((event) => {
                     const eventDateStr = event.date;
                     const eventDate = new Date(`${eventDateStr} 23:59:59`);
                     

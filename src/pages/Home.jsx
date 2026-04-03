@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { SERIES_CONFIG, SCHEDULE_DB } from './Series';
 import CountdownClock from '../components/CountdownClock';
-import { getAnnouncement } from '../utils/storage';
+import * as storage from '../utils/storage';
 
 export default function Home() {
   const [announcement, setAnnouncement] = useState(null);
   const [annDismissed, setAnnDismissed] = useState(false);
 
   useEffect(() => {
-    const ann = getAnnouncement();
+    const ann = storage.getAnnouncement();
     if (ann?.active && ann?.text) setAnnouncement(ann.text);
   }, []);
 
@@ -65,8 +65,17 @@ export default function Home() {
         let nextSeriesConfig = null;
         let nextSeriesId = null;
 
-        Object.keys(SCHEDULE_DB).forEach(seriesId => {
-          SCHEDULE_DB[seriesId].forEach(event => {
+        const rawSchedules = storage.getSchedules() || {};
+        const allSchedules = {};
+        
+        Object.keys(SERIES_CONFIG).forEach(seriesId => {
+          allSchedules[seriesId] = rawSchedules[seriesId] && rawSchedules[seriesId].length > 0 
+            ? rawSchedules[seriesId] 
+            : (SCHEDULE_DB[seriesId] || []);
+        });
+
+        Object.keys(allSchedules).forEach(seriesId => {
+          allSchedules[seriesId].forEach(event => {
             const timeStr = event.time ? event.time.replace(/EST|EDT/gi, '').trim() : '';
             const eventDateStr = event.date;
             // Since timeStr isn't perfect, build a robust date or fallback
