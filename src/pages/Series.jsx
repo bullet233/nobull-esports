@@ -863,8 +863,7 @@ export default function Series() {
                   Official Series Info
                 </h2>
                 <p className="font-body text-secondary text-center max-w-2xl text-base md:text-lg mx-4">
-                  Everything you need to know about competing in the {config.title}. 
-                  Review the session timeline, vehicle specifications, and server configurations below.
+                  Overview of {config.title}. See Discord for full series info.
                 </p>
               </div>
 
