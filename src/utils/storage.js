@@ -1,5 +1,4 @@
-// No imports from Series.jsx — avoids circular initialization issue.
-// Default seeds are inlined here so storage.js has zero dependencies.
+import { supabase } from './supabase';
 
 const KEYS = {
   REGISTRATIONS: 'nobull_registrations',
@@ -10,17 +9,31 @@ const KEYS = {
   RACE_RESULTS: 'nobull_race_results',
 };
 
-function read(key, fallback) {
-  try {
-    const v = localStorage.getItem(key);
-    return v ? JSON.parse(v) : fallback;
-  } catch {
-    return fallback;
+let memoryCache = {};
+
+export async function initStorage() {
+  const { data, error } = await supabase.from('app_state').select('*');
+  if (!error && data) {
+    data.forEach(row => {
+      memoryCache[row.key] = row.value;
+    });
+  } else if (error) {
+    console.error("Supabase load error:", error);
   }
 }
 
+function read(key, fallback) {
+  if (memoryCache[key] !== undefined) {
+    return memoryCache[key];
+  }
+  return fallback;
+}
+
 function write(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+  memoryCache[key] = value; // Update cache immediately for UI
+  // Sync to Supabase in the background
+  supabase.from('app_state').upsert({ key, value }, { onConflict: 'key' })
+    .then(({error}) => { if (error) console.error("Supabase save error:", error) });
 }
 
 // ── Registrations ─────────────────────────────────────────
