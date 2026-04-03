@@ -12,10 +12,20 @@ const KEYS = {
 let memoryCache = {};
 
 export async function initStorage() {
+  // 1. Instantly restore from localStorage
+  Object.values(KEYS).forEach(key => {
+    try {
+      const local = window.localStorage.getItem(key);
+      if (local) memoryCache[key] = JSON.parse(local);
+    } catch (e) { console.error("localStorage parse error:", e); }
+  });
+
+  // 2. Background sync from Supabase
   const { data, error } = await supabase.from('app_state').select('*');
   if (!error && data) {
     data.forEach(row => {
       memoryCache[row.key] = row.value;
+      window.localStorage.setItem(row.key, JSON.stringify(row.value));
     });
   } else if (error) {
     console.error("Supabase load error:", error);
@@ -31,6 +41,10 @@ function read(key, fallback) {
 
 function write(key, value) {
   memoryCache[key] = value; // Update cache immediately for UI
+  
+  // Instantly persist to localStorage so data survives refreshes without DB connection
+  try { window.localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+
   // Sync to Supabase in the background
   supabase.from('app_state').upsert({ key, value }, { onConflict: 'key' })
     .then(({error}) => { if (error) console.error("Supabase save error:", error) });
