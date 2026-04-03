@@ -260,7 +260,7 @@ export default function Series() {
           <div className="shrink-0 flex items-end">
             {config.logo ? (
               <div className="relative group inline-block">
-                <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full scale-[2.0] animate-pulse transition-all group-hover:bg-primary/40"></div>
+                <div className="absolute inset-0 blur-[100px] rounded-full scale-[2.0] animate-pulse transition-opacity duration-500 opacity-20 group-hover:opacity-40" style={{ backgroundColor: config.color }}></div>
                 <img src={config.logo} alt="Series Logo" className="relative z-10 h-32 sm:h-48 md:h-64 lg:h-[280px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-transform duration-700 ease-out group-hover:scale-105" />
               </div>
             ) : (
@@ -304,7 +304,6 @@ export default function Series() {
               </div>
 
               <div className="flex flex-col sm:flex-row w-full mt-2 gap-3 sm:gap-4 lg:w-fit">
-                {seriesId !== 'showdown' && (
                   <button
                     onClick={() => setIsRegistrationOpen(true)}
                     className="group relative flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl font-headline font-black italic text-lg sm:text-base text-white uppercase tracking-widest transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto cursor-pointer hover:brightness-110 shrink-0"
@@ -313,7 +312,6 @@ export default function Series() {
                     <span className="relative z-10 transition-transform group-hover:-translate-x-1 drop-shadow-md">Join Series</span>
                     <span className="material-symbols-outlined text-[24px] relative z-10 transition-transform group-hover:translate-x-1 group-hover:scale-110 drop-shadow-md">sports_motorsports</span>
                   </button>
-                )}
 
                 <a
                   href="https://discord.gg/UsPzvBZpw7"
