@@ -63,7 +63,7 @@ export default function RegistrationModal({ isOpen, onClose, config, seriesId })
               Your registration for <span className="font-bold" style={{ color: config.color }}>{config.title}</span> is in. The next step is joining our Discord — that's where race announcements, lineup confirmations, and all league comms happen.
             </p>
             <a
-              href="https://discord.gg/nobull"
+              href="https://discord.gg/UsPzvBZpw7"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full max-w-xs flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-headline font-black italic uppercase tracking-widest text-white text-lg shadow-xl hover:scale-105 hover:shadow-2xl transition-all bg-[#5865F2] hover:bg-[#4752c4]"

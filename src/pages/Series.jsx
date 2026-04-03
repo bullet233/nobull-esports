@@ -316,7 +316,7 @@ export default function Series() {
                 )}
 
                 <a
-                  href="https://discord.gg/nobull"
+                  href="https://discord.gg/UsPzvBZpw7"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl font-headline font-black italic text-lg sm:text-base text-white uppercase tracking-widest transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto bg-[#5865F2] hover:bg-[#4752c4] shadow-lg shadow-[#5865F2]/30 shrink-0"

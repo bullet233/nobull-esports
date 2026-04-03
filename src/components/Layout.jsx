@@ -18,7 +18,7 @@ export default function Layout() {
           </nav>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
-          <a href="https://discord.gg/nobull" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#5865F2] text-white h-8 w-8 md:w-auto md:h-auto md:px-4 md:py-1.5 rounded-lg shadow-sm hover:bg-[#4752c4] hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#5865F2]/30 transition-all active:scale-95 text-sm font-bold tracking-tight group">
+          <a href="https://discord.gg/UsPzvBZpw7" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#5865F2] text-white h-8 w-8 md:w-auto md:h-auto md:px-4 md:py-1.5 rounded-lg shadow-sm hover:bg-[#4752c4] hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#5865F2]/30 transition-all active:scale-95 text-sm font-bold tracking-tight group">
             <span className="material-symbols-outlined text-[18px] group-hover:-rotate-12 transition-transform">forum</span>
             <span className="hidden md:inline">DISCORD</span>
           </a>
@@ -54,7 +54,7 @@ export default function Layout() {
 
       {/* Floating Discord Persistent Widget */}
       <a 
-        href="https://discord.gg/nobull" 
+        href="https://discord.gg/UsPzvBZpw7" 
         target="_blank" 
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-[#5865F2] text-white rounded-full shadow-2xl hover:bg-[#4752c4] hover:scale-110 hover:-translate-y-1 transition-all group duration-300"

@@ -33,7 +33,7 @@ export default function Home() {
           {/* Hero Call to Action */}
           <div className="mt-10 sm:mt-12 flex items-center justify-center animate-fadeIn relative z-30">
             <a 
-              href="https://discord.gg/nobull" 
+              href="https://discord.gg/UsPzvBZpw7" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-[#5865F2] text-white px-8 py-4 md:px-10 md:py-5 rounded-2xl font-headline font-black italic text-lg md:text-xl uppercase tracking-widest hover:bg-white hover:text-[#5865F2] hover:-translate-y-1 transition-all duration-300 shadow-[0_15px_30px_-5px_rgba(88,101,242,0.4)] hover:shadow-[0_20px_40px_-5px_rgba(255,255,255,0.4)] group overflow-hidden relative"
@@ -218,7 +218,7 @@ export default function Home() {
             {/* Glow backing */}
             <div className="absolute inset-0 bg-[#5865F2] blur-3xl opacity-40 scale-110 rounded-full animate-pulse"></div>
             <a 
-              href="https://discord.gg/nobull" 
+              href="https://discord.gg/UsPzvBZpw7" 
               target="_blank" 
               rel="noopener noreferrer"
               className="relative z-10 w-full sm:w-auto flex items-center justify-center gap-3 bg-[#5865F2] text-white px-8 py-5 md:px-12 md:py-6 rounded-2xl font-headline font-black italic text-xl md:text-2xl uppercase tracking-widest hover:bg-white hover:text-[#5865F2] hover:-translate-y-2 transition-all duration-300 shadow-2xl group border-[3px] border-transparent hover:border-[#5865F2]"
