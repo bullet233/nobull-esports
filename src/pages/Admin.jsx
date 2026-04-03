@@ -618,7 +618,7 @@ function MediaSection() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   
-  const emptyVod = { title: '', date: '', views: '', thumbnail: '', series: 'CORE', url: '' };
+  const emptyVod = { title: '', url: '' };
   const [vodForm, setVodForm] = useState(emptyVod);
 
   const saveFeatured = () => {
@@ -674,19 +674,9 @@ function MediaSection() {
       {showForm && (
         <form onSubmit={saveVod} className="bg-white border-2 border-primary/20 rounded-2xl p-6 mb-6 shadow-sm">
           <h4 className="font-headline font-bold text-base uppercase italic text-slate-900 mb-4">{editId ? 'Edit VOD' : 'New VOD Archive Entry'}</h4>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Video Title" placeholder="Core Series Race" value={vodForm.title} onChange={v => setVodForm({...vodForm, title: v})} required />
-            <Input label="Date" placeholder="March 24, 2026" value={vodForm.date} onChange={v => setVodForm({...vodForm, date: v})} required />
-            <Input label="Views" placeholder="1.2K" value={vodForm.views} onChange={v => setVodForm({...vodForm, views: v})} />
-            <Input label="Thumbnail URL (Optional)" placeholder="Defaults to YouTube" value={vodForm.thumbnail} onChange={v => setVodForm({...vodForm, thumbnail: v})} />
             <Input label="YouTube Link" placeholder="https://www.youtube.com/watch?..." value={vodForm.url} onChange={v => setVodForm({...vodForm, url: v})} required />
-            <div>
-              <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-1.5">Series Badge</label>
-              <select className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 focus:border-primary outline-none cursor-pointer" value={vodForm.series} onChange={e => setVodForm({...vodForm, series: e.target.value})}>
-                <option value="CORE">CORE</option>
-                <option value="SHOWDOWN">SHOWDOWN</option>
-              </select>
-            </div>
           </div>
           <div className="flex justify-end gap-3 mt-4">
             <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 font-label font-bold text-xs uppercase tracking-widest text-slate-500 hover:bg-slate-100 rounded-xl transition-all">Cancel</button>
@@ -702,8 +692,8 @@ function MediaSection() {
             <div className="flex-1 min-w-0">
               <p className="font-headline font-bold text-sm uppercase italic text-slate-900 truncate">{vod.title}</p>
               <div className="flex gap-2">
-                <span className="font-label text-[9px] uppercase font-bold text-slate-400">{vod.date}</span>
-                <span className="font-label text-[9px] uppercase font-bold text-primary">{vod.series}</span>
+                {vod.date && <span className="font-label text-[9px] uppercase font-bold text-slate-400">{vod.date}</span>}
+                {vod.series && <span className="font-label text-[9px] uppercase font-bold text-primary">{vod.series}</span>}
               </div>
             </div>
             <div className="flex items-center gap-1 shrink-0">

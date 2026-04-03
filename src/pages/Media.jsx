@@ -55,9 +55,11 @@ export default function Media() {
                 <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-transparent transition-colors"></div>
                 
                 {/* Series Badge */}
+                {vod.series && (
                 <span className={`absolute top-3 left-3 px-2 py-1 text-[9px] font-black tracking-widest uppercase rounded shadow-md ${vod.series === 'CORE' ? 'bg-[#f97316] text-white' : 'bg-[#10b981] text-white'}`}>
                   {vod.series}
                 </span>
+                )}
 
                 {/* Hover Play Icon */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -68,10 +70,12 @@ export default function Media() {
               </div>
               
               <h3 className="font-headline text-xl font-bold uppercase italic leading-tight group-hover:text-primary transition-colors line-clamp-2">{vod.title}</h3>
+              {(vod.date || vod.views) && (
               <div className="flex items-center gap-4 mt-2 font-label text-[10px] font-black tracking-widest uppercase text-slate-500">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">calendar_today</span> {vod.date}</span>
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">visibility</span> {vod.views} Views</span>
+                {vod.date && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">calendar_today</span> {vod.date}</span>}
+                {vod.views && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">visibility</span> {vod.views} Views</span>}
               </div>
+              )}
             </a>
           ))}
         </div>
