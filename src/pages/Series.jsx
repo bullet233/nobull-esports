@@ -229,11 +229,9 @@ export default function Series() {
     return <Navigate to="/" />;
   }
 
-  // Fetch dynamic schedule if available, otherwise fallback to hardcoded
+  // Fetch dynamic schedule if available
   const rawSchedules = storage.getSchedule() || {};
-  const seriesSchedule = rawSchedules[seriesId] && rawSchedules[seriesId].length > 0 
-    ? rawSchedules[seriesId] 
-    : (SCHEDULE_DB[seriesId] || []);
+  const seriesSchedule = rawSchedules[seriesId] || [];
 
   // We use a CSS variable to dynamically theme the Tailwind classes for this specific series
   const themeStyle = { '--series-accent': config.color };

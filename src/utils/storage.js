@@ -90,7 +90,15 @@ const DEFAULT_SCHEDULE = {
   ],
 };
 export function getSchedule() {
-  return read(KEYS.SCHEDULE, DEFAULT_SCHEDULE);
+  const stored = read(KEYS.SCHEDULE, null);
+  if (!stored) return DEFAULT_SCHEDULE;
+  
+  return {
+    core: stored.core || DEFAULT_SCHEDULE.core,
+    challenger: stored.challenger || DEFAULT_SCHEDULE.challenger,
+    premiere: stored.premiere || DEFAULT_SCHEDULE.premiere,
+    showdown: stored.showdown || DEFAULT_SCHEDULE.showdown,
+  };
 }
 export function setSchedule(data) {
   write(KEYS.SCHEDULE, data);
