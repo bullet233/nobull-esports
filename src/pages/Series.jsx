@@ -230,7 +230,7 @@ export default function Series() {
   }
 
   // Fetch dynamic schedule if available, otherwise fallback to hardcoded
-  const rawSchedules = storage.getSchedules() || {};
+  const rawSchedules = storage.getSchedule() || {};
   const seriesSchedule = rawSchedules[seriesId] && rawSchedules[seriesId].length > 0 
     ? rawSchedules[seriesId] 
     : (SCHEDULE_DB[seriesId] || []);

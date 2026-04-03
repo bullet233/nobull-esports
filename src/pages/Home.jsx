@@ -65,7 +65,7 @@ export default function Home() {
         let nextSeriesConfig = null;
         let nextSeriesId = null;
 
-        const rawSchedules = storage.getSchedules() || {};
+        const rawSchedules = storage.getSchedule() || {};
         const allSchedules = {};
         
         Object.keys(SERIES_CONFIG).forEach(seriesId => {
