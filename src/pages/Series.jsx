@@ -310,7 +310,8 @@ export default function Series() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row w-full mt-2 gap-3 sm:gap-4 lg:w-fit">
+               <div className="flex flex-col sm:flex-row w-full mt-2 gap-3 sm:gap-4 lg:w-fit">
+                {seriesId !== 'showdown' && (
                   <button
                     onClick={() => setIsRegistrationOpen(true)}
                     className="group relative flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl font-headline font-black italic text-lg sm:text-base text-white uppercase tracking-widest transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto cursor-pointer hover:brightness-110 shrink-0"
@@ -319,6 +320,7 @@ export default function Series() {
                     <span className="relative z-10 transition-transform group-hover:-translate-x-1 drop-shadow-md">Join Series</span>
                     <span className="material-symbols-outlined text-[24px] relative z-10 transition-transform group-hover:translate-x-1 group-hover:scale-110 drop-shadow-md">sports_motorsports</span>
                   </button>
+                )}
 
                 <a
                   href="https://discord.gg/UsPzvBZpw7"
