@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SERIES_CONFIG, SCHEDULE_DB } from './Series';
 import * as storage from '../utils/storage';
 
-const ADMIN_HASH = '764d6e08822c75202cae8cf2f26c6c047eb241e096caf0eaad8aa2c';
+const ADMIN_HASH = '764d6e08822c75202cae8cf2f2650174f3035e096caf0eaad8aa2c6c047eb241';
 const SERIES_IDS = ['core', 'showdown'];
 
 async function hashPassword(pw) {
