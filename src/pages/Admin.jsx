@@ -2,8 +2,14 @@ import React, { useState } from 'react';
 import { SERIES_CONFIG, SCHEDULE_DB } from './Series';
 import * as storage from '../utils/storage';
 
-const ADMIN_PASSWORD = 'nobull2024';
-const SERIES_IDS = ['core', 'challenger', 'premiere', 'showdown'];
+const ADMIN_HASH = '764d6e08822c75202cae8cf2f26c6c047eb241e096caf0eaad8aa2c';
+const SERIES_IDS = ['core', 'showdown'];
+
+async function hashPassword(pw) {
+  const data = new TextEncoder().encode(pw);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // ─────────────────────────────────────────────────────────────
 // SHARED UI HELPERS
@@ -74,9 +80,10 @@ function AdminLogin({ onLogin }) {
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (pw === ADMIN_PASSWORD) {
+    const hashed = await hashPassword(pw);
+    if (hashed === ADMIN_HASH) {
       sessionStorage.setItem('adminAuth', 'true');
       onLogin();
     } else {
@@ -121,9 +128,11 @@ function AdminLogin({ onLogin }) {
 const NAV = [
   { id: 'dashboard',     label: 'Dashboard',    icon: 'dashboard' },
   { id: 'results',       label: 'Results',       icon: 'bar_chart' },
+  { id: 'standings',     label: 'Standings',     icon: 'leaderboard' },
   { id: 'drivers',       label: 'Drivers',       icon: 'group' },
   { id: 'schedule',      label: 'Schedule',      icon: 'calendar_month' },
   { id: 'config',        label: 'Series Config', icon: 'tune' },
+  { id: 'info',          label: 'Info Builder',  icon: 'view_timeline' },
   { id: 'registrations', label: 'Registrations', icon: 'inbox' },
   { id: 'announcements', label: 'Announcements', icon: 'campaign' },
   { id: 'media',         label: 'Media',         icon: 'smart_display' },
@@ -495,7 +504,27 @@ function SeriesConfigSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {FIELDS.map(f => <Input key={f.key} label={f.label} placeholder={f.placeholder} value={cur[f.key] || ''} onChange={v => set(f.key, v)} className={f.wide ? 'sm:col-span-2' : ''} />)}
         </div>
-        <div className="flex justify-end mt-6 pt-6 border-t border-slate-100">
+        <div className="mt-8">
+           <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-3">Module Toggles (Hide Tabs)</label>
+           <div className="flex flex-wrap gap-3">
+             {['info', 'results', 'standings', 'schedule', 'drivers'].map(tab => {
+               const isDisabled = (cur.disabledTabs || []).includes(tab);
+               return (
+                 <button 
+                   key={tab} 
+                   onClick={() => {
+                     const dt = cur.disabledTabs || [];
+                     set('disabledTabs', isDisabled ? dt.filter(t => t !== tab) : [...dt, tab]);
+                   }}
+                   className={`px-4 py-2.5 rounded-xl font-label text-[10px] font-bold uppercase tracking-widest border border-slate-200 transition-all flex items-center gap-2 shadow-sm ${!isDisabled ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>
+                   <span className="material-symbols-outlined text-[16px] flex-shrink-0">{!isDisabled ? 'visibility' : 'visibility_off'}</span>
+                   {tab}
+                 </button>
+               )
+             })}
+           </div>
+        </div>
+        <div className="flex justify-end mt-8 pt-6 border-t border-slate-100">
           <SaveButton onClick={handleSave} saved={saved}>Save Config</SaveButton>
         </div>
       </div>
@@ -543,7 +572,7 @@ function RegistrationsSection() {
                   <span className="font-label font-bold text-[10px] uppercase tracking-widest text-white px-2.5 py-1 rounded-lg" style={{ backgroundColor: SERIES_CONFIG[reg.seriesId]?.color || '#64748b' }}>{SERIES_CONFIG[reg.seriesId]?.title || reg.seriesId}</span>
                 </div>
                 <div className="flex flex-wrap gap-4 text-xs font-body text-secondary">
-                  {reg.email && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">email</span>{reg.email}</span>}
+                  {reg.custId && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">sports_motorsports</span>ID: {reg.custId}</span>}
                   {reg.carChoices?.filter(Boolean).length > 0 && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">pin</span>Cars: #{reg.carChoices.filter(Boolean).join(', #')}</span>}
                   {reg.submittedAt && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">schedule</span>{new Date(reg.submittedAt).toLocaleDateString()}</span>}
                 </div>
@@ -708,6 +737,211 @@ function MediaSection() {
 }
 
 // ─────────────────────────────────────────────────────────────
+// STANDINGS
+// ─────────────────────────────────────────────────────────────
+function StandingsSection() {
+  const [dragActive, setDragActive] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [series, setSeries] = useState('core');
+
+  const showToast = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 4000); };
+
+  const handleFile = (file) => {
+    if (!file.name.endsWith('.json') && file.type !== 'application/json') { alert('Please upload a valid JSON file.'); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        const existing = storage.getStandings();
+        storage.setStandings({ ...existing, [series]: { data, importedAt: Date.now() } });
+        showToast(`Standings for ${series} updated successfully.`);
+      } catch { alert('Invalid JSON format.'); }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleDrag = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(e.type === 'dragenter' || e.type === 'dragover'); };
+  const handleDrop = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(false); if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]); };
+
+  return (
+    <div>
+      <SectionHeader icon="leaderboard" title="Championship Standings" subtitle="Upload JSON points permutations to update the central leaderboard." />
+      {toast && (
+        <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 border shadow-sm ${toast.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+          <span className="material-symbols-outlined text-2xl">{toast.type === 'success' ? 'check_circle' : 'error'}</span>
+          <p className="font-label font-bold text-sm uppercase tracking-wide">{toast.msg}</p>
+        </div>
+      )}
+      <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col">
+        <div className="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
+          <div className="bg-primary/10 p-2.5 rounded-xl"><span className="material-symbols-outlined text-primary text-2xl block">data_object</span></div>
+          <div><h3 className="font-headline text-xl font-bold uppercase italic text-slate-900">Upload JSON</h3><p className="text-secondary font-body text-xs mt-0.5">[&#123;pos, name, points, starts, wins&#125;]</p></div>
+        </div>
+
+        <div className="mb-6 flex flex-col gap-2 max-w-xs">
+          <label className="font-label text-[10px] font-black uppercase tracking-widest text-slate-500">Target Series</label>
+          <select value={series} onChange={e => setSeries(e.target.value)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-2 border-slate-200 font-label font-bold text-sm uppercase tracking-widest focus:border-primary focus:outline-none transition-colors">
+            {SERIES_IDS.map(id => <option key={id} value={id}>{id} Series</option>)}
+          </select>
+        </div>
+
+        <div className={`w-full min-h-[240px] rounded-xl border-[3px] border-dashed flex flex-col items-center justify-center p-8 text-center transition-all cursor-pointer ${dragActive ? 'border-primary bg-primary/5' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300'}`}
+          onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>
+          <span className={`material-symbols-outlined text-6xl mb-4 transition-colors ${dragActive ? 'text-primary' : 'text-slate-300'}`}>cloud_upload</span>
+          <p className="font-headline font-bold text-lg text-slate-800 mb-2">Drop Standings JSON</p>
+          <label className="bg-white border-2 border-slate-200 text-slate-700 font-label font-bold text-xs uppercase tracking-widest px-6 py-3 mt-4 rounded-xl cursor-pointer hover:border-primary hover:text-primary transition-all shadow-sm">
+            Browse Files
+            <input type="file" className="hidden" accept=".json,application/json" onChange={e => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }} />
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SERIES INFO BUILDER
+// ─────────────────────────────────────────────────────────────
+function SeriesInfoSection() {
+  const [series, setSeries] = useState('core');
+  const [infoForms, setInfoForms] = useState(() => storage.getSeriesInfo());
+  const [saved, setSaved] = useState(false);
+
+  const cur = infoForms[series] || storage.DEFAULT_INFO_DATA;
+
+  const setInfo = (updater) => {
+    setInfoForms(p => ({ ...p, [series]: updater(p[series] || storage.DEFAULT_INFO_DATA) }));
+    setSaved(false);
+  };
+
+  const save = () => { storage.setSeriesInfo(infoForms); setSaved(true); setTimeout(() => setSaved(false), 3000); };
+
+  const addTimeline = () => setInfo(d => ({ ...d, timeline: [...d.timeline, { label: '', value: '', highlight: false }] }));
+  const updateTimeline = (idx, field, val) => setInfo(d => ({ ...d, timeline: d.timeline.map((t, i) => i === idx ? { ...t, [field]: val } : t) }));
+  const delTimeline = (idx) => setInfo(d => ({ ...d, timeline: d.timeline.filter((_, i) => i !== idx) }));
+
+  const addConfig = () => setInfo(d => ({ ...d, serverConfig: [...d.serverConfig, { icon: 'tune', label: '', value: '' }] }));
+  const updateConfig = (idx, field, val) => setInfo(d => ({ ...d, serverConfig: d.serverConfig.map((c, i) => i === idx ? { ...c, [field]: val } : c) }));
+  const delConfig = (idx) => setInfo(d => ({ ...d, serverConfig: d.serverConfig.filter((_, i) => i !== idx) }));
+
+  const updateCompStr = (field, strVar) => {
+    const arr = strVar.split(',').map(s => s.trim()).filter(Boolean);
+    setInfo(d => ({ ...d, competition: { ...d.competition, [field]: arr } }));
+  };
+  const updateCompKey = (field, val) => setInfo(d => ({ ...d, competition: { ...d.competition, [field]: val } }));
+  
+  const ICONS = ['tune', 'partly_cloudy_day', 'build_circle', 'local_gas_station', 'speed', 'flag', 'sports_motorsports', 'warning', 'sports_score'];
+
+  return (
+    <div>
+      <SectionHeader icon="view_timeline" title="Info Tab Builder" subtitle="Build layout cards for the 'Series Info' public tab without hardcoding." />
+      <SeriesTabs active={series} setActive={setSeries} />
+
+      <div className="flex flex-col gap-6">
+        {/* Timeline Editor */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-headline text-xl font-bold uppercase italic text-slate-900">Session Timeline</h3>
+            <button onClick={addTimeline} className="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-label font-bold text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1"><span className="material-symbols-outlined text-sm">add</span> Row</button>
+          </div>
+          <div className="flex flex-col gap-3">
+            {cur.timeline?.map((t, i) => (
+              <div key={i} className={`flex flex-col sm:flex-row gap-3 p-4 rounded-xl border-2 ${t.highlight ? 'border-primary/50 bg-primary/5' : 'border-slate-100 bg-slate-50'}`}>
+                <input value={t.label} onChange={e => updateTimeline(i, 'label', e.target.value)} placeholder="e.g. Lobby Opens" className="flex-1 bg-white px-3 py-2 border border-slate-200 rounded-lg text-sm font-label font-bold uppercase tracking-widest outline-none focus:border-primary" />
+                <input value={t.value} onChange={e => updateTimeline(i, 'value', e.target.value)} placeholder="e.g. 8:30 PM" className="flex-1 bg-white px-3 py-2 border border-slate-200 rounded-lg text-sm font-body italic font-bold outline-none focus:border-primary" />
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 cursor-pointer grow sm:grow-0 justify-end sm:justify-start">
+                    <input type="checkbox" checked={t.highlight} onChange={e => updateTimeline(i, 'highlight', e.target.checked)} className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" />
+                    <span className="font-label text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">Highlight</span>
+                  </label>
+                  <button onClick={() => delTimeline(i)} className="text-slate-400 hover:text-red-500"><span className="material-symbols-outlined text-lg block">delete</span></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Server Config Editor */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-headline text-xl font-bold uppercase italic text-slate-900">Server Configuration</h3>
+            <button onClick={addConfig} className="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl font-label font-bold text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1"><span className="material-symbols-outlined text-sm">add</span> Spec</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {cur.serverConfig?.map((c, i) => (
+              <div key={i} className="flex gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 relative group">
+                <select value={c.icon} onChange={e => updateConfig(i, 'icon', e.target.value)} className="w-14 shrink-0 bg-white border border-slate-200 rounded-lg text-center outline-none focus:border-primary text-slate-500 material-symbols-outlined" style={{fontFamily: "'Material Symbols Outlined'"}}>
+                  {ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
+                </select>
+                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                  <input value={c.label} onChange={e => updateConfig(i, 'label', e.target.value)} placeholder="e.g. Setups" className="w-full bg-white px-2 py-1 border border-slate-200 rounded-md text-[10px] font-label font-black uppercase tracking-widest outline-none focus:border-primary" />
+                  <input value={c.value} onChange={e => updateConfig(i, 'value', e.target.value)} placeholder="e.g. Fixed" className="w-full bg-white px-2 py-1 border border-slate-200 rounded-md text-sm font-body font-bold outline-none focus:border-primary" />
+                </div>
+                <button onClick={() => delConfig(i)} className="absolute -top-2 -right-2 bg-white border border-slate-200 rounded-full w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-200 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"><span className="material-symbols-outlined text-[14px]">close</span></button>
+              </div>
+            ))}
+          </div>
+          <div className="pt-6 border-t border-slate-100">
+             <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-2">Overtime Rules</label>
+             <input type="text" value={cur.overtimeRules} onChange={e => setInfo(d => ({...d, overtimeRules: e.target.value}))} placeholder="e.g. Max 2 Green-White-Checkered (GWC)" className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-body text-slate-800 focus:border-primary outline-none transition-all" />
+          </div>
+        </div>
+
+        {/* Competition Base Editor */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+          <h3 className="font-headline text-xl font-bold uppercase italic text-slate-900 mb-6">Competition Base</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-3">
+              <div>
+                <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-1.5">Vehicle Group Name</label>
+                <input type="text" value={cur.competition?.vehiclesLabel || 'Rotating Vehicles'} onChange={e => updateCompKey('vehiclesLabel', e.target.value)} placeholder="e.g. Rotating Vehicles" className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-label font-bold text-slate-800 focus:border-primary outline-none transition-all" />
+              </div>
+              <div>
+                <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-1.5">Vehicles List <span className="text-[9px] text-slate-400 normal-case">(comma separated)</span></label>
+                <input type="text" value={cur.competition?.vehicles?.join(', ') || ''} onChange={e => updateCompStr('vehicles', e.target.value)} placeholder="e.g. Trucks, Gen 6, Next Gen" className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-body text-slate-800 focus:border-primary outline-none transition-all" />
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-3">
+              <div>
+                <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-1.5">Track Group Name</label>
+                <input type="text" value={cur.competition?.tracksLabel || 'Track Rotation'} onChange={e => updateCompKey('tracksLabel', e.target.value)} placeholder="e.g. Superspeedway Rotation" className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-label font-bold text-slate-800 focus:border-primary outline-none transition-all" />
+              </div>
+              <div>
+                <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-1.5">Tracks List <span className="text-[9px] text-slate-400 normal-case">(comma separated)</span></label>
+                <input type="text" value={cur.competition?.tracks?.join(', ') || ''} onChange={e => updateCompStr('tracks', e.target.value)} placeholder="e.g. Daytona, Talladega" className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-body text-slate-800 focus:border-primary outline-none transition-all" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100 w-full">
+            <div className="flex gap-3">
+               <div className="w-1/2">
+                 <label className="block font-label font-bold text-[10px] uppercase tracking-widest text-secondary mb-2 whitespace-nowrap">Fee Descriptor</label>
+                 <input type="text" value={cur.competition?.entryFeeLabel || 'Season Entry'} onChange={e => updateCompKey('entryFeeLabel', e.target.value)} placeholder="e.g. Season Entry" className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-body text-slate-800 focus:border-primary outline-none transition-all" />
+               </div>
+               <div className="w-1/2">
+                 <label className="block font-label font-bold text-[10px] uppercase tracking-widest text-secondary mb-2 whitespace-nowrap">Fee Amount <span className="normal-case">(Blank = Hide)</span></label>
+                 <input type="text" value={cur.competition?.entryFee || ''} onChange={e => updateCompKey('entryFee', e.target.value)} placeholder="e.g. $10" className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-body text-slate-800 focus:border-primary outline-none transition-all" />
+               </div>
+            </div>
+            <div>
+               <label className="block font-label font-bold text-xs uppercase tracking-widest text-secondary mb-2">Prize Description</label>
+               <input type="text" value={cur.competition?.prizeDesc || ''} onChange={e => updateCompKey('prizeDesc', e.target.value)} placeholder="e.g. Top 3 Prizes" className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-body text-slate-800 focus:border-primary outline-none transition-all" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-6">
+        <SaveButton onClick={save} saved={saved}>Publish Series Info</SaveButton>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // ROOT ADMIN
 // ─────────────────────────────────────────────────────────────
 export default function Admin() {
@@ -718,7 +952,7 @@ export default function Admin() {
 
   if (!authed) return <AdminLogin onLogin={() => setAuthed(true)} />;
 
-  const SECTIONS = { dashboard: <Dashboard setSection={setSection} />, results: <ResultsSection />, drivers: <DriversSection />, schedule: <ScheduleSection />, config: <SeriesConfigSection />, registrations: <RegistrationsSection />, announcements: <AnnouncementsSection />, media: <MediaSection /> };
+  const SECTIONS = { dashboard: <Dashboard setSection={setSection} />, results: <ResultsSection />, standings: <StandingsSection />, drivers: <DriversSection />, schedule: <ScheduleSection />, config: <SeriesConfigSection />, info: <SeriesInfoSection />, registrations: <RegistrationsSection />, announcements: <AnnouncementsSection />, media: <MediaSection /> };
 
   return (
     <div className="min-h-screen bg-slate-100 pt-16 flex">

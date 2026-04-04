@@ -15,14 +15,23 @@ export default function Home() {
 
   return (
     <main className="bg-background min-h-screen pb-24">
+      {/* Announcement Banner */}
+      {announcement && !annDismissed && (
+        <div className="fixed top-16 left-0 w-full bg-amber-500 px-6 py-3.5 flex items-center justify-center gap-3 z-40 shadow-lg">
+          <span className="material-symbols-outlined text-white text-[20px] shrink-0">campaign</span>
+          <p className="font-body font-bold text-sm text-white shrink-0">{announcement}</p>
+          <button onClick={() => setAnnDismissed(true)} className="text-white/70 hover:text-white transition-colors shrink-0 ml-4">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+      )}
+
       {/* Static Hero Section */}
       <section className="relative h-[600px] w-full overflow-hidden bg-on-surface flex items-center justify-center">
-        <div className="absolute inset-0 bg-slate-900/60 z-10"></div>
+        <div className="absolute inset-0 bg-slate-950/80 z-10"></div>
         <img className="absolute inset-0 w-full h-full object-cover scale-105" src="/hero-home.jpg" alt="NoBull Motorsports" />
         <div className="relative z-20 text-center flex flex-col items-center px-4 max-w-4xl pt-16">
-          <span className="bg-primary text-white px-4 py-1.5 font-headline font-black text-xs rounded-full shadow-lg mb-6 tracking-widest uppercase">
-            EST. 2024
-          </span>
+
           <h1 className="font-headline text-6xl md:text-8xl font-black text-white leading-tight uppercase italic drop-shadow-2xl">
             NOBULL <span className="text-primary">ESPORTS</span>
           </h1>
@@ -45,17 +54,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Announcement Banner */}
-      {announcement && !annDismissed && (
-        <div className="bg-primary px-6 py-3.5 flex items-center gap-3 relative z-20">
-          <span className="material-symbols-outlined text-white text-[20px] shrink-0">campaign</span>
-          <p className="font-body text-sm text-white flex-1">{announcement}</p>
-          <button onClick={() => setAnnDismissed(true)} className="text-white/70 hover:text-white transition-colors shrink-0">
-            <span className="material-symbols-outlined text-[20px]">close</span>
-          </button>
-        </div>
-      )}
 
       {/* Upcoming Race Banner */}
       {(() => {
@@ -97,7 +95,7 @@ export default function Home() {
 
         return (
           <section className="max-w-7xl mx-auto px-4 -mt-10 relative z-30 animate-fadeIn">
-            <div className="bg-white rounded-3xl p-6 md:p-8 flex flex-col xl:flex-row items-center justify-between shadow-2xl shadow-slate-900/10 border border-slate-100 relative overflow-hidden group">
+            <div className="bg-white rounded-3xl py-4 px-6 md:py-5 md:px-8 flex flex-col xl:flex-row items-center justify-between shadow-2xl shadow-slate-900/10 border border-slate-100 relative overflow-hidden group">
               {/* Dynamic Series Glow Overlay */}
               <div 
                 className="absolute inset-0 opacity-5"
@@ -111,12 +109,10 @@ export default function Home() {
               <div className="flex flex-col md:flex-row items-center lg:items-center gap-6 md:gap-8 relative z-10 w-full xl:w-auto">
                 {/* Series Icon / Logo Box */}
                 <div 
-                  className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border-2 border-slate-50 overflow-hidden relative"
-                  style={{ backgroundColor: `${nextSeriesConfig.color}15` }}
+                  className="h-32 w-48 sm:h-40 sm:w-64 md:h-48 md:w-72 flex items-center justify-center shrink-0 relative -my-6 sm:-my-10 md:-my-14"
                 >
-                  <div className="absolute inset-0 opacity-20" style={{ backgroundColor: nextSeriesConfig.color }}></div>
                   {nextSeriesConfig.logo ? (
-                    <img src={nextSeriesConfig.logo} alt="Series Logo" className="w-[80%] h-[80%] object-contain drop-shadow-md relative z-10" />
+                    <img src={nextSeriesConfig.logo} alt="Series Logo" className="w-full h-full object-contain drop-shadow-md relative z-10" />
                   ) : (
                     <span className="material-symbols-outlined text-4xl" style={{ color: nextSeriesConfig.color }}>sports_motorsports</span>
                   )}
@@ -204,40 +200,7 @@ export default function Home() {
       </section>
 
       {/* Discord Footer Community Banner */}
-      <section className="relative mt-32 w-full bg-slate-900 overflow-hidden border-t-4 border-[#5865F2]">
-        {/* Abstract Background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-[#5865F2] to-slate-900 mix-blend-color-burn"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#5865F2] rounded-full blur-[120px] opacity-30"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#5865F2] rounded-full blur-[120px] opacity-20"></div>
-        </div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 md:py-24 flex flex-col md:flex-row items-center justify-between gap-10 md:gap-16 lg:px-8">
-          <div className="flex flex-col max-w-2xl text-center md:text-left items-center md:items-start w-full">
-            <h2 className="font-headline text-4xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tight mb-4 drop-shadow-2xl leading-none">
-              The Action Happens <br className="hidden lg:block" />
-              <span className="text-[#5865F2]">In The Paddock</span>
-            </h2>
-            <p className="font-body text-slate-300 text-lg sm:text-xl font-light max-w-xl leading-relaxed">
-              Join hundreds of elite sim racers in the official NoBull Esports Discord. Get schedule updates, talk setups, and find your next team.
-            </p>
-          </div>
-          
-          <div className="shrink-0 relative w-full sm:w-auto">
-            {/* Glow backing */}
-            <div className="absolute inset-0 bg-[#5865F2] blur-3xl opacity-40 scale-110 rounded-full animate-pulse"></div>
-            <a 
-              href="https://discord.gg/UsPzvBZpw7" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="relative z-10 w-full sm:w-auto flex items-center justify-center gap-3 bg-[#5865F2] text-white px-8 py-5 md:px-12 md:py-6 rounded-2xl font-headline font-black italic text-xl md:text-2xl uppercase tracking-widest hover:bg-white hover:text-[#5865F2] hover:-translate-y-2 transition-all duration-300 shadow-2xl group border-[3px] border-transparent hover:border-[#5865F2]"
-            >
-              <span className="material-symbols-outlined text-[28px] md:text-[32px] group-hover:scale-110 transition-transform">rocket_launch</span>
-              Join Community
-            </a>
-          </div>
-        </div>
-      </section>
+
     </main>
   );
 }

@@ -7,6 +7,8 @@ const KEYS = {
   SERIES_CONFIG_OVERRIDES: 'nobull_series_config',
   ANNOUNCEMENT: 'nobull_announcement',
   RACE_RESULTS: 'nobull_race_results',
+  STANDINGS: 'nobull_standings',
+  SERIES_INFO: 'nobull_series_info',
 };
 
 let memoryCache = {};
@@ -166,4 +168,46 @@ export function getMediaConfig() {
 }
 export function setMediaConfig(data) {
   write('nobull_media', data);
+}
+
+export function getStandings() {
+  return read(KEYS.STANDINGS, {});
+}
+
+export function setStandings(value) {
+  write(KEYS.STANDINGS, value);
+}
+
+export const DEFAULT_INFO_DATA = {
+  timeline: [
+    { label: 'Broadcast day', value: 'Monday Nights', highlight: false },
+    { label: 'Lobby Opens', value: '8:30 PM EST', highlight: false },
+    { label: 'Qualifying', value: '8:55 PM EST', highlight: false },
+    { label: 'Green Flag Race', value: '9:00 PM EST', highlight: true },
+  ],
+  serverConfig: [
+    { icon: 'tune', label: 'Setups', value: 'iRacing Fixed' },
+    { icon: 'partly_cloudy_day', label: 'Weather', value: 'Default (Afternoon)' },
+    { icon: 'build_circle', label: 'Repairs', value: '1 Fast Repair' },
+    { icon: 'local_gas_station', label: 'Fuel Mix', value: '100% Tank' }
+  ],
+  overtimeRules: 'Max 2 Green-White-Checkered (GWC)',
+  competition: {
+    vehicles: ['Trucks', 'Next Gen', 'Gen 6'],
+    vehiclesLabel: 'Rotating Vehicles',
+    tracks: ['Daytona', 'Talladega'],
+    tracksLabel: 'Superspeedway Rotation',
+    entryFee: '$10',
+    entryFeeLabel: 'Season Entry',
+    prizeDesc: 'Top 3 Prizes'
+  }
+};
+
+export function getSeriesInfo() {
+  const stored = read(KEYS.SERIES_INFO, null);
+  return stored || { 'core': DEFAULT_INFO_DATA };
+}
+
+export function setSeriesInfo(value) {
+  write(KEYS.SERIES_INFO, value);
 }

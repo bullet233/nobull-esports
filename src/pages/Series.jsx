@@ -216,16 +216,36 @@ export default function Series() {
   const [selectedStandingsRound, setSelectedStandingsRound] = useState(null);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
 
+  const baseConfig = SERIES_CONFIG[seriesId] || SERIES_CONFIG['challenger'];
+  const overrides = storage.getSeriesConfigOverrides() || {};
+  const overrideConfig = overrides[seriesId] || {};
+
+  const ALL_TABS = ['info', 'results', 'standings', 'schedule', 'drivers'];
+  const enabledTabs = ALL_TABS.filter(t => !(overrideConfig.disabledTabs || []).includes(t));
+
   // Reset tab and selected round when series changes
   React.useEffect(() => {
-    setActiveTab('schedule');
+    const currentOverrides = (storage.getSeriesConfigOverrides() || {})[seriesId] || {};
+    const eTabs = ['info', 'results', 'standings', 'schedule', 'drivers'].filter(t => !(currentOverrides.disabledTabs || []).includes(t));
+    setActiveTab(eTabs.includes('schedule') ? 'schedule' : (eTabs[0] || 'info'));
     setSelectedRound(null);
     setSelectedStandingsRound(null);
   }, [seriesId]);
-  
-  const config = SERIES_CONFIG[seriesId] || SERIES_CONFIG['challenger'];
 
-  if (!config) {
+  const config = {
+    ...baseConfig,
+    tagline: overrideConfig.tagline || baseConfig.tagline,
+    specs: {
+      ...(baseConfig.specs || {}),
+      day: overrideConfig.day || baseConfig.specs?.day,
+      greenFlag: overrideConfig.greenFlag || baseConfig.specs?.greenFlag,
+      format: overrideConfig.format || baseConfig.specs?.format,
+      cars: overrideConfig.cars || baseConfig.specs?.cars,
+      tracks: overrideConfig.tracks || baseConfig.specs?.tracks,
+    }
+  };
+
+  if (!baseConfig) {
     return <Navigate to="/" />;
   }
 
@@ -260,12 +280,11 @@ export default function Series() {
           Hub
         </Link>
         
-        <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-8 pt-10 sm:pt-6 pb-2 lg:pb-0 flex flex-col lg:flex-row lg:items-center justify-start gap-8 lg:gap-16">
+        <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-8 pt-10 sm:pt-6 pb-2 lg:pb-0 flex flex-col lg:flex-row lg:items-center justify-start gap-5 lg:gap-10">
           {/* Logo / Brand Name */}
           <div className="shrink-0 flex items-end">
             {config.logo ? (
               <div className="relative group inline-block">
-                <div className="absolute inset-0 blur-[100px] rounded-full scale-[2.0] animate-pulse transition-opacity duration-500 opacity-20 group-hover:opacity-40" style={{ backgroundColor: config.color }}></div>
                 <img src={config.logo} alt="Series Logo" className="relative z-10 h-32 sm:h-48 md:h-64 lg:h-[280px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-transform duration-700 ease-out group-hover:scale-105" />
               </div>
             ) : (
@@ -278,32 +297,32 @@ export default function Series() {
           {/* Telecom HUD / Specs */}
           {config.specs && (
             <div className="flex flex-col items-start justify-center w-full lg:w-auto relative z-30 lg:mt-6">
-              <div className="flex flex-col gap-3 lg:gap-4 mb-4 sm:mb-8 w-full max-w-3xl">
+              <div className="flex flex-col gap-3 lg:gap-4 mb-4 sm:mb-8 w-full max-w-4xl">
                 <div className="flex flex-wrap gap-x-12 gap-y-6">
                   {/* Top Row: Dominant Schedule Block */}
-                  <div className="flex items-end gap-x-6 sm:gap-x-8 w-full sm:-mb-2">
-                    <div className="flex flex-col items-start gap-1 font-label uppercase tracking-widest leading-none shrink-0">
-                      <span className="font-black text-[var(--series-accent)] text-[10px] sm:text-[11px] drop-shadow-[0_0_10px_var(--series-accent)] mb-1">Race Day</span>
-                      <span className="font-headline font-black italic text-white/95 text-2xl sm:text-3xl md:text-5xl drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] leading-none truncate max-w-[150px] sm:max-w-none">{config.specs.day}</span>
+                  <div className="flex flex-wrap sm:flex-nowrap items-end gap-y-4 gap-x-6 sm:gap-x-8 w-full sm:-mb-2 shrink-0">
+                    <div className="flex flex-col items-start gap-1 font-label uppercase tracking-widest leading-none">
+                      <span className="font-black text-[var(--series-accent)] text-xs sm:text-sm md:text-base drop-shadow-[0_0_10px_var(--series-accent)] mb-1">Race Day</span>
+                      <span className="font-headline font-black italic text-white/95 text-2xl sm:text-3xl md:text-5xl drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] leading-none whitespace-nowrap">{config.specs.day}</span>
                     </div>
                     <div className="flex flex-col items-start gap-1 font-label uppercase tracking-widest leading-none shrink-0">
-                      <span className="font-black text-white/50 text-[10px] sm:text-[11px] drop-shadow-sm mb-1">Green Flag</span>
-                      <span className="font-headline font-black italic text-[var(--series-accent)] text-2xl sm:text-3xl md:text-5xl drop-shadow-[0_0_20px_var(--series-accent)] leading-none">{config.specs.greenFlag}</span>
+                      <span className="font-black text-white/80 text-xs sm:text-sm md:text-base drop-shadow-sm mb-1">Green Flag</span>
+                      <span className="font-headline font-black italic text-[var(--series-accent)] text-2xl sm:text-3xl md:text-5xl drop-shadow-[0_0_20px_var(--series-accent)] leading-none whitespace-nowrap">{config.specs.greenFlag}</span>
                     </div>
                   </div>
 
                   {/* Secondary Row: Setup Specs */}
                   <div className="flex flex-col items-start gap-1.5 font-label uppercase tracking-widest leading-none">
-                    <span className="font-black text-white/50 text-[10px] drop-shadow-sm">Cars</span>
-                    <span className="font-black text-white/95 text-xs sm:text-sm drop-shadow-md">{config.specs.cars}</span>
+                    <span className="font-black text-white/50 text-[11px] sm:text-xs drop-shadow-sm">Cars</span>
+                    <span className="font-black text-white/95 text-sm sm:text-base drop-shadow-md whitespace-nowrap">{config.specs.cars}</span>
                   </div>
                   <div className="flex flex-col items-start gap-1.5 font-label uppercase tracking-widest leading-none">
-                    <span className="font-black text-white/50 text-[10px] drop-shadow-sm">Tracks</span>
-                    <span className="font-black text-white/95 text-xs sm:text-sm drop-shadow-md">{config.specs.tracks}</span>
+                    <span className="font-black text-white/50 text-[11px] sm:text-xs drop-shadow-sm">Tracks</span>
+                    <span className="font-black text-white/95 text-sm sm:text-base drop-shadow-md whitespace-nowrap">{config.specs.tracks}</span>
                   </div>
-                  <div className="flex flex-col items-start gap-1.5 font-label uppercase tracking-widest leading-none w-full">
-                    <span className="font-black text-white/50 text-[10px] drop-shadow-sm">Format</span>
-                    <span className="font-black text-white/95 text-xs sm:text-sm drop-shadow-md">{config.specs.format}</span>
+                  <div className="flex flex-col items-start gap-1.5 font-label uppercase tracking-widest leading-none">
+                    <span className="font-black text-white/50 text-[11px] sm:text-xs drop-shadow-sm">Format</span>
+                    <span className="font-black text-white/95 text-sm sm:text-base drop-shadow-md whitespace-nowrap">{config.specs.format}</span>
                   </div>
                 </div>
               </div>
@@ -341,7 +360,7 @@ export default function Series() {
         
         {/* Series Navigation Tabs */}
         <div className="flex items-center overflow-x-auto bg-white rounded-t-3xl shadow-sm border-b border-slate-100 px-4 sm:px-8 pt-2 scrollbar-hide">
-          {['info', 'results', 'standings', 'schedule', 'drivers'].map((tab) => (
+          {enabledTabs.map((tab) => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -369,7 +388,8 @@ export default function Series() {
 
                 {/* Historical Toggle Controls */}
                 {(() => {
-                  const currentStandingsRounds = STANDINGS_DB[seriesId] || [];
+                  const dbStandings = storage.getStandings();
+                  const currentStandingsRounds = dbStandings[seriesId]?.data || [];
                   if (currentStandingsRounds.length === 0) return null;
                   
                   const activeStandingsRoundId = selectedStandingsRound || currentStandingsRounds[currentStandingsRounds.length - 1].roundId;
@@ -407,8 +427,16 @@ export default function Series() {
                 })()}
               </div>
 
-              {STANDINGS_DB[seriesId]?.length > 0 ? (() => {
-                const currentStandingsRounds = STANDINGS_DB[seriesId];
+              {(() => {
+                const dbStandings = storage.getStandings();
+                const currentStandingsRounds = dbStandings[seriesId]?.data || [];
+                if (currentStandingsRounds.length === 0) return (
+                  <div className="w-full max-w-2xl text-center py-20 px-8 text-secondary font-body bg-slate-50 rounded-3xl border-2 border-slate-100 border-dashed">
+                    <span className="material-symbols-outlined text-5xl text-slate-300 mb-4 block">leaderboard</span>
+                    Championship standings have not been calculated for the {config.title} yet. Check back soon!
+                  </div>
+                );
+                
                 const activeStandingsRoundId = selectedStandingsRound || currentStandingsRounds[currentStandingsRounds.length - 1].roundId;
                 const activeRoundIndex = currentStandingsRounds.findIndex(r => r.roundId === activeStandingsRoundId);
                 const activeStandingsData = activeRoundIndex !== -1 ? currentStandingsRounds[activeRoundIndex].standings : [];
@@ -477,12 +505,7 @@ export default function Series() {
                   </div>
                 </div>
               );
-              })() : (
-                <div className="w-full max-w-2xl text-center py-20 px-8 text-secondary font-body bg-slate-50 rounded-3xl border-2 border-slate-100 border-dashed mt-8">
-                  <span className="material-symbols-outlined text-5xl text-slate-300 mb-4 block">leaderboard</span>
-                  Championship standings have not been tabulated yet for the {config.title}.
-                </div>
-              )}
+              })()}
             </div>
           ) : activeTab === 'schedule' ? (
             <div className="w-full max-w-6xl flex flex-col items-center animate-fadeIn">
@@ -680,7 +703,7 @@ export default function Series() {
 
                 {/* Historical Toggle Controls */}
                 {(() => {
-                  const currentRaces = RACE_RESULTS_DB[seriesId] || [];
+                  const currentRaces = [];
                   if (currentRaces.length === 0) return null;
                   
                   const activeRaceId = selectedRound || currentRaces[currentRaces.length - 1].id;
@@ -718,11 +741,17 @@ export default function Series() {
                 })()}
               </div>
 
-              {RACE_RESULTS_DB[seriesId]?.length > 0 ? (() => {
-                const currentRaces = RACE_RESULTS_DB[seriesId];
+              {(() => {
+                const currentRaces = [];
+                if (currentRaces.length === 0) return (
+                  <div className="w-full max-w-2xl text-center py-20 px-8 text-secondary font-body bg-slate-50 rounded-3xl border-2 border-slate-100 border-dashed mt-8">
+                    <span className="material-symbols-outlined text-5xl text-slate-300 mb-4 block">fact_check</span>
+                    Race results have not been tabulated yet for the {config.title}.
+                  </div>
+                );
+                
                 const activeRaceId = selectedRound || currentRaces[currentRaces.length - 1].id;
                 const race = currentRaces.find(r => r.id === activeRaceId);
-                if (!race) return null;
 
                 return (
                   <div className="w-full bg-white border-2 border-slate-100 rounded-3xl overflow-hidden shadow-sm">
@@ -854,12 +883,7 @@ export default function Series() {
                     </div>
                   </div>
                 );
-              })() : (
-                <div className="w-full max-w-2xl text-center py-20 px-8 text-secondary font-body bg-slate-50 rounded-3xl border-2 border-slate-100 border-dashed mt-8">
-                  <span className="material-symbols-outlined text-5xl text-slate-300 mb-4 block">fact_check</span>
-                  Race results have not been tabulated yet for the {config.title}.
-                </div>
-              )}
+              })()}
             </div>
           ) : activeTab === 'info' ? (
             <div className="w-full max-w-6xl animate-fadeIn">
@@ -871,118 +895,123 @@ export default function Series() {
                   Overview of {config.title}. See Discord for full series info.
                 </p>
               </div>
+              {(() => {
+                const infoData = storage.getSeriesInfo()[seriesId];
+                if (!infoData) return (
+                  <div className="w-full max-w-2xl text-center py-20 px-8 text-secondary font-body bg-slate-50 rounded-3xl border-2 border-slate-100 border-dashed mx-auto mt-8">
+                    <span className="material-symbols-outlined text-5xl text-slate-300 mb-4 block">view_timeline</span>
+                    <p className="font-headline font-black uppercase italic text-slate-600 mb-1">Information Pending</p>
+                    <p className="text-sm">The series configuration and info payload have not been published yet.</p>
+                  </div>
+                );
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 w-full mt-4">
-                
-                {/* Broadcast & Timeline */}
-                <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 lg:p-8 flex flex-col shadow-sm">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="material-symbols-outlined text-3xl text-rose-500 drop-shadow-sm">sensors</span>
-                    <h3 className="font-headline text-2xl font-black uppercase italic text-slate-800 tracking-tight">Session Timeline</h3>
-                  </div>
-                  <div className="flex flex-col gap-3 flex-1">
-                    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex items-center justify-between group hover:border-[var(--series-accent)] transition-colors">
-                      <span className="font-headline font-bold text-slate-400 uppercase tracking-widest text-[10px] md:text-xs">Broadcast day</span>
-                      <span className="font-body font-bold text-slate-900 text-right opacity-90">Monday Nights</span>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex items-center justify-between group hover:border-[var(--series-accent)] transition-colors">
-                      <span className="font-headline font-bold text-slate-400 uppercase tracking-widest text-[10px] md:text-xs">Lobby Opens</span>
-                      <span className="font-body font-bold text-slate-900 text-right opacity-90">8:30 PM EST</span>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex items-center justify-between group hover:border-[var(--series-accent)] transition-colors">
-                      <span className="font-headline font-bold text-slate-400 uppercase tracking-widest text-[10px] md:text-xs">Qualifying</span>
-                      <span className="font-headline font-bold italic text-slate-900 text-right opacity-90">8:55 PM EST</span>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border shadow-sm flex items-center justify-between relative overflow-hidden group mt-1" style={{ borderColor: `${config.color}40` }}>
-                      <div className="absolute inset-0 opacity-10" style={{ backgroundColor: config.color }}></div>
-                      <span className="font-headline font-black uppercase tracking-widest text-[10px] md:text-xs relative z-10" style={{ color: config.color }}>Green Flag Race</span>
-                      <span className="font-headline text-xl italic font-black text-slate-900 text-right relative z-10">9:00 PM EST</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Event Configuration */}
-                <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 lg:p-8 flex flex-col shadow-sm">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="material-symbols-outlined text-3xl text-sky-500 drop-shadow-sm">build</span>
-                    <h3 className="font-headline text-2xl font-black uppercase italic text-slate-800 tracking-tight">Server Config</h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 flex-1">
-                    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex flex-col items-start gap-1 hover:-translate-y-1 transition-transform cursor-default">
-                      <span className="material-symbols-outlined text-slate-400 text-xl mb-1">tune</span>
-                      <p className="font-label text-[9px] uppercase tracking-widest font-black text-slate-400">Setups</p>
-                      <p className="font-body font-bold text-slate-800 leading-tight text-sm">iRacing Fixed</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex flex-col items-start gap-1 hover:-translate-y-1 transition-transform cursor-default">
-                      <span className="material-symbols-outlined text-slate-400 text-xl mb-1">partly_cloudy_day</span>
-                      <p className="font-label text-[9px] uppercase tracking-widest font-black text-slate-400">Weather</p>
-                      <p className="font-body font-bold text-slate-800 leading-tight text-sm">Default (Afternoon)</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex flex-col items-start gap-1 hover:-translate-y-1 transition-transform cursor-default">
-                      <span className="material-symbols-outlined text-slate-400 text-xl mb-1">build_circle</span>
-                      <p className="font-label text-[9px] uppercase tracking-widest font-black text-slate-400">Repairs</p>
-                      <p className="font-body font-bold text-slate-800 leading-tight text-sm">1 Fast Repair</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex flex-col items-start gap-1 hover:-translate-y-1 transition-transform cursor-default">
-                      <span className="material-symbols-outlined text-slate-400 text-xl mb-1">local_gas_station</span>
-                      <p className="font-label text-[9px] uppercase tracking-widest font-black text-slate-400">Fuel Mix</p>
-                      <p className="font-body font-bold text-slate-800 leading-tight text-sm">100% Tank</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex flex-col items-start gap-1 hover:-translate-y-1 transition-transform col-span-2 cursor-default justify-center">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="material-symbols-outlined text-slate-400 text-lg">flag</span>
-                        <p className="font-label text-[9px] uppercase tracking-widest font-black text-slate-400">Overtime Rules</p>
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 w-full mt-4">
+                    {/* Broadcast & Timeline */}
+                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 lg:p-8 flex flex-col shadow-sm">
+                      <div className="flex items-center gap-3 mb-6">
+                        <span className="material-symbols-outlined text-3xl text-rose-500 drop-shadow-sm">sensors</span>
+                        <h3 className="font-headline text-2xl font-black uppercase italic text-slate-800 tracking-tight">Session Timeline</h3>
                       </div>
-                      <p className="font-body font-bold text-slate-800 text-sm">Max 2 Green-White-Checkered (GWC)</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Entry & Competition Structure */}
-                <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 lg:p-8 flex flex-col shadow-sm lg:col-span-1 md:col-span-2">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="material-symbols-outlined text-3xl text-emerald-500 drop-shadow-sm">emoji_events</span>
-                    <h3 className="font-headline text-2xl font-black uppercase italic text-slate-800 tracking-tight">Competition Base</h3>
-                  </div>
-                  
-                  <div className="flex flex-col gap-4 flex-1">
-                    <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:border-[var(--series-accent)]/30 transition-colors">
-                      <p className="font-label text-[10px] uppercase tracking-widest font-black mb-3 flex items-center gap-1.5" style={{ color: config.color }}>
-                        <span className="material-symbols-outlined text-[16px]">directions_car</span>
-                        Rotating Vehicles
-                      </p>
-                      <div className="flex flex-wrap gap-2.5">
-                        <span className="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">Trucks</span>
-                        <span className="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">Next Gen</span>
-                        <span className="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">Gen 6</span>
+                      <div className="flex flex-col gap-3 flex-1">
+                        {infoData.timeline?.map((t, i) => (
+                          t.highlight ? (
+                            <div key={i} className="bg-white rounded-xl p-4 border shadow-sm flex items-center justify-between relative overflow-hidden group mt-1" style={{ borderColor: `${config.color}40` }}>
+                              <div className="absolute inset-0 opacity-10" style={{ backgroundColor: config.color }}></div>
+                              <span className="font-headline font-black uppercase tracking-widest text-[10px] md:text-xs relative z-10" style={{ color: config.color }}>{t.label}</span>
+                              <span className="font-headline text-xl italic font-black text-slate-900 text-right relative z-10">{t.value}</span>
+                            </div>
+                          ) : (
+                            <div key={i} className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex items-center justify-between group hover:border-[var(--series-accent)] transition-colors">
+                              <span className="font-headline font-bold text-slate-400 uppercase tracking-widest text-[10px] md:text-xs">{t.label}</span>
+                              <span className="font-body font-bold text-slate-900 text-right opacity-90">{t.value}</span>
+                            </div>
+                          )
+                        ))}
                       </div>
                     </div>
 
-                    <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:border-[var(--series-accent)]/30 transition-colors">
-                      <p className="font-label text-[10px] uppercase tracking-widest font-black mb-3 flex items-center gap-1.5" style={{ color: config.color }}>
-                        <span className="material-symbols-outlined text-[16px]">map</span>
-                        Superspeedway Rotation
-                      </p>
-                      <div className="flex flex-wrap gap-2.5">
-                        <span className="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">Daytona</span>
-                        <span className="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">Talladega</span>
+                    {/* Event Configuration */}
+                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 lg:p-8 flex flex-col shadow-sm">
+                      <div className="flex items-center gap-3 mb-6">
+                        <span className="material-symbols-outlined text-3xl text-sky-500 drop-shadow-sm">build</span>
+                        <h3 className="font-headline text-2xl font-black uppercase italic text-slate-800 tracking-tight">Server Config</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 flex-1">
+                        {infoData.serverConfig?.map((c, i) => (
+                          <div key={i} className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex flex-col items-start gap-1 hover:-translate-y-1 transition-transform cursor-default">
+                            <span className="material-symbols-outlined text-slate-400 text-xl mb-1">{c.icon || 'tune'}</span>
+                            <p className="font-label text-[9px] uppercase tracking-widest font-black text-slate-400">{c.label}</p>
+                            <p className="font-body font-bold text-slate-800 leading-tight text-sm">{c.value}</p>
+                          </div>
+                        ))}
+                        {infoData.overtimeRules && (
+                          <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex flex-col items-start gap-1 hover:-translate-y-1 transition-transform col-span-2 cursor-default justify-center mt-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="material-symbols-outlined text-slate-400 text-lg">flag</span>
+                              <p className="font-label text-[9px] uppercase tracking-widest font-black text-slate-400">Overtime Rules</p>
+                            </div>
+                            <p className="font-body font-bold text-slate-800 text-sm">{infoData.overtimeRules}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <div className="mt-auto grid grid-cols-2 gap-4">
-                      <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:-translate-y-1 transition-transform">
-                        <span className="font-headline text-4xl font-black text-emerald-600 leading-none mb-1 shadow-sm">$10</span>
-                        <span className="font-label text-[9px] font-black uppercase tracking-widest text-emerald-800">Season Entry</span>
+                    {/* Entry & Competition Structure */}
+                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 lg:p-8 flex flex-col shadow-sm lg:col-span-1 md:col-span-2">
+                      <div className="flex items-center gap-3 mb-6">
+                        <span className="material-symbols-outlined text-3xl text-emerald-500 drop-shadow-sm">emoji_events</span>
+                        <h3 className="font-headline text-2xl font-black uppercase italic text-slate-800 tracking-tight">Competition Base</h3>
                       </div>
-                      <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:-translate-y-1 transition-transform">
-                        <span className="material-symbols-outlined text-4xl text-amber-500 mb-1 leading-none drop-shadow-sm">workspace_premium</span>
-                        <span className="font-label text-[9px] font-black uppercase tracking-widest text-amber-800">Top 3 Prizes</span>
+                      
+                      <div className="flex flex-col gap-4 flex-1">
+                        {infoData.competition?.vehicles?.length > 0 && (
+                          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:border-[var(--series-accent)]/30 transition-colors">
+                            <p className="font-label text-[10px] uppercase tracking-widest font-black mb-3 flex items-center gap-1.5" style={{ color: config.color }}>
+                              <span className="material-symbols-outlined text-[16px]">directions_car</span>
+                              {infoData.competition.vehiclesLabel || 'Rotating Vehicles'}
+                            </p>
+                            <div className="flex flex-wrap gap-2.5">
+                              {infoData.competition.vehicles.map(v => (
+                                <span key={v} className="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">{v}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {infoData.competition?.tracks?.length > 0 && (
+                          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:border-[var(--series-accent)]/30 transition-colors">
+                            <p className="font-label text-[10px] uppercase tracking-widest font-black mb-3 flex items-center gap-1.5" style={{ color: config.color }}>
+                              <span className="material-symbols-outlined text-[16px]">map</span>
+                              {infoData.competition.tracksLabel || 'Track Rotation'}
+                            </p>
+                            <div className="flex flex-wrap gap-2.5">
+                              {infoData.competition.tracks.map(t => (
+                                <span key={t} className="bg-slate-50 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">{t}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="mt-auto grid grid-cols-2 gap-4">
+                          {infoData.competition?.entryFee && (
+                            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:-translate-y-1 transition-transform">
+                              <span className="font-headline text-2xl lg:text-4xl font-black text-emerald-600 leading-none mb-1 shadow-sm">{infoData.competition.entryFee}</span>
+                              <span className="font-label text-[9px] font-black uppercase tracking-widest text-emerald-800 mt-1">{infoData.competition.entryFeeLabel || 'Season Entry'}</span>
+                            </div>
+                          )}
+                          {infoData.competition?.prizeDesc && (
+                            <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:-translate-y-1 transition-transform">
+                              <span className="material-symbols-outlined text-4xl text-amber-500 mb-1 leading-none drop-shadow-sm">workspace_premium</span>
+                              <span className="font-label text-[9px] font-black uppercase tracking-widest text-amber-800 mt-1">{infoData.competition.prizeDesc}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-
-                </div>
-              </div>
+                );
+              })()}
             </div>
           ) : (
             <>

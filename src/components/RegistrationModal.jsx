@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { addRegistration } from '../utils/storage';
 
 export default function RegistrationModal({ isOpen, onClose, config, seriesId }) {
-  const [form, setForm] = useState({ name: '', email: '', car1: '', car2: '', car3: '' });
+  const [form, setForm] = useState({ name: '', custId: '', car1: '', car2: '', car3: '', rulesAgreed: false });
   const [submitted, setSubmitted] = useState(false);
 
   if (!isOpen) return null;
@@ -14,7 +14,7 @@ export default function RegistrationModal({ isOpen, onClose, config, seriesId })
     addRegistration({
       id: Date.now(),
       name: form.name,
-      email: form.email,
+      custId: form.custId,
       seriesId: seriesId || 'unknown',
       carChoices: [form.car1, form.car2, form.car3],
       status: 'pending',
@@ -23,7 +23,7 @@ export default function RegistrationModal({ isOpen, onClose, config, seriesId })
     setSubmitted(true);
   };
 
-  const handleClose = () => { setSubmitted(false); setForm({ name: '', email: '', car1: '', car2: '', car3: '' }); onClose(); };
+  const handleClose = () => { setSubmitted(false); setForm({ name: '', custId: '', car1: '', car2: '', car3: '', rulesAgreed: false }); onClose(); };
 
   const focusBorder = (e) => { e.target.style.boxShadow = `inset 0 0 0 2px ${config.color}`; };
   const blurBorder = (e) => { e.target.style.boxShadow = 'inset 0 0 0 0 transparent'; };
@@ -62,6 +62,10 @@ export default function RegistrationModal({ isOpen, onClose, config, seriesId })
             <p className="font-body text-secondary max-w-sm mb-8">
               Your registration for <span className="font-bold" style={{ color: config.color }}>{config.title}</span> is in. The next step is joining our Discord — that's where race announcements, lineup confirmations, and all league comms happen.
             </p>
+            <div className="w-full max-w-sm bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 text-center">
+              <p className="font-label text-[10px] uppercase tracking-widest font-black text-slate-500 mb-1.5">iRacing League</p>
+              <p className="font-body text-sm text-slate-700">Apply to iRacing league <span className="font-headline font-black italic text-slate-900">#14277</span> or an admin will invite you as soon as possible.</p>
+            </div>
             <a
               href="https://discord.gg/UsPzvBZpw7"
               target="_blank"
@@ -94,8 +98,8 @@ export default function RegistrationModal({ isOpen, onClose, config, seriesId })
                       onFocus={focusBorder} onBlur={blurBorder} />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="font-label text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Email Address <span className="text-red-400">*</span></label>
-                    <input required type="email" placeholder="driver@example.com" value={form.email} onChange={e => set('email', e.target.value)}
+                    <label className="font-label text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">iRacing Customer ID <span className="text-red-400">*</span></label>
+                    <input required type="text" placeholder="e.g. 123456" value={form.custId} onChange={e => set('custId', e.target.value)}
                       className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-body text-slate-800 focus:outline-none placeholder:text-slate-300 focus:bg-white shadow-sm transition-all"
                       onFocus={focusBorder} onBlur={blurBorder} />
                   </div>
@@ -122,6 +126,18 @@ export default function RegistrationModal({ isOpen, onClose, config, seriesId })
                     </div>
                   ))}
                 </div>
+              </section>
+
+              {/* Rules Agreement */}
+              <section>
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input required type="checkbox" checked={form.rulesAgreed} onChange={e => set('rulesAgreed', e.target.checked)}
+                    className="mt-1 w-5 h-5 rounded border-2 border-slate-300 accent-current shrink-0 cursor-pointer"
+                    style={{ accentColor: config.color }} />
+                  <span className="font-body text-sm text-slate-600 group-hover:text-slate-800 transition-colors leading-relaxed">
+                    I have read and agreed to all of <span className="font-bold" style={{ color: config.color }}>NoBull Esports</span> rules.
+                  </span>
+                </label>
               </section>
 
 

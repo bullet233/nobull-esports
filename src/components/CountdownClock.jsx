@@ -4,7 +4,10 @@ export default function CountdownClock({ targetDate, accentColor = '#38bdf8' }) 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    if (!targetDate || isNaN(targetDate.getTime())) return;
+    if (!targetDate || isNaN(targetDate.getTime())) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
     
     const calc = () => {
       const difference = targetDate.getTime() - new Date().getTime();

@@ -30,22 +30,9 @@ export default function Layout() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 w-full mt-24">
-        <div className="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-y-12">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <Link to="/" className="font-['Space_Grotesk'] font-bold text-on-surface text-xl tracking-tighter uppercase italic">NOBULL <span className="text-primary">ESPORTS</span></Link>
-            <div className="font-['Inter'] text-[10px] tracking-widest uppercase text-secondary opacity-60">© 2024 NOBULL ESPORTS LEAGUE. PRECISION ENGINEERED.</div>
-          </div>
-          <div className="flex flex-wrap justify-center gap-8">
-            <a className="font-['Inter'] text-xs tracking-widest uppercase text-secondary hover:text-primary transition-colors" href="#">PRIVACY POLICY</a>
-            <a className="font-['Inter'] text-xs tracking-widest uppercase text-secondary hover:text-primary transition-colors" href="#">TERMS OF SERVICE</a>
-            <a className="font-['Inter'] text-xs tracking-widest uppercase text-secondary hover:text-primary transition-colors" href="#">CONTACT</a>
-            <a className="font-['Inter'] text-xs tracking-widest uppercase text-on-surface font-bold hover:text-primary transition-colors" href="#">SPONSORS</a>
-          </div>
-          <div className="flex gap-4">
-            <span className="material-symbols-outlined text-secondary cursor-pointer hover:text-primary">sports_esports</span>
-            <span className="material-symbols-outlined text-secondary cursor-pointer hover:text-primary">podium</span>
-            <span className="material-symbols-outlined text-secondary cursor-pointer hover:text-primary">public</span>
-          </div>
+        <div className="w-full py-10 px-8 flex flex-col items-center max-w-7xl mx-auto gap-2">
+          <Link to="/" className="font-['Space_Grotesk'] font-bold text-on-surface text-xl tracking-tighter uppercase italic">NOBULL <span className="text-primary">ESPORTS</span></Link>
+          <div className="font-['Inter'] text-[10px] tracking-widest uppercase text-secondary opacity-60">© 2024 NOBULL ESPORTS LEAGUE. PRECISION ENGINEERED.</div>
         </div>
       </footer>
 
